@@ -59,6 +59,15 @@ impl AnimalDogImpl of AnimalTrait::<Dog> {
     }
 }
 
+impl FishTraitImpl of FishTrait {
+    fn swim(ref self: Fish) -> () {}
+}
+
+impl DogTraitImpl of DogTrait {
+    fn walk(ref self: Dog) -> () {}
+}
+        
+
 // TODO: implement FishTrait for the type Fish
 
 // TODO: implement DogTrait for the type Dog
