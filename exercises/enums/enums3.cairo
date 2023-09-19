@@ -8,6 +8,10 @@ use debug::PrintTrait;
 
 #[derive(Drop, Copy)]
 enum Message { // TODO: implement the message variant types based on their usage below
+    ChangeColor: (u8, u8, u8),
+    Echo: felt252,
+    Move: Point,
+    Quit: ()
 }
 
 #[derive(Drop, Copy)]
@@ -20,7 +24,7 @@ struct Point {
 struct State {
     color: (u8, u8, u8),
     position: Point,
-    quit: bool,
+    quit: bool
 }
 
 trait StateTrait {
@@ -33,11 +37,11 @@ trait StateTrait {
 impl StateImpl of StateTrait {
     fn change_color(ref self: State, new_color: (u8, u8, u8)) {
         let State{color, position, quit, } = self;
-        self = State { color: new_color, position: position, quit: quit,  };
+        self = State { color: new_color, position: position, quit: quit, };
     }
     fn quit(ref self: State) {
         let State{color, position, quit, } = self;
-        self = State { color: color, position: position, quit: true,  };
+        self = State { color: color, position: position, quit: true, };
     }
 
     fn echo(ref self: State, s: felt252) {
@@ -46,25 +50,29 @@ impl StateImpl of StateTrait {
 
     fn move_position(ref self: State, p: Point) {
         let State{color, position, quit, } = self;
-        self = State { color: color, position: p, quit: quit,  };
+        self = State { color: color, position: p, quit: quit, };
     }
 
     fn process(
         ref self: State, message: Message
     ) { // TODO: create a match expression to process the different message variants
-    // Remember: When passing a tuple as a function argument, you'll need extra parentheses: fn function((t, u, p, l, e))
+        // Remember: When passing a tuple as a function argument, you'll need extra parentheses: fn function((t, u, p, l, e))
+        match self {
+            color => self.change_color(self.color),
+            s => self.echo(s: ),
+            Point => self.move_position(self.position),
+            Quit => self.quit()
+        }
     }
 }
 
 
 #[test]
 fn test_match_message_call() {
-    let mut state = State {
-        quit: false, position: Point { x: 0, y: 0}, color: (0, 0, 0), 
-    };
+    let mut state = State { quit: false, position: Point { x: 0, y: 0 }, color: (0, 0, 0), };
     state.process(Message::ChangeColor((255, 0, 255)));
     state.process(Message::Echo('hello world'));
-    state.process(Message::Move(Point { x: 10, y: 15}));
+    state.process(Message::Move(Point { x: 10, y: 15 }));
     state.process(Message::Quit(()));
 
     assert(state.color == (255, 0, 255), 'wrong color');
